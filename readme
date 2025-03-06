@@ -1,0 +1,145 @@
+# SportsRecorder
+
+A tool to automatically record sports streams from the web at scheduled times using Windows Game Bar.
+
+## Prerequisites
+
+This program runs on Windows and requires the following to be installed:
+
+- Windows 10 or later (with Windows Game Bar)
+- Google Chrome
+
+## Installation Guide
+
+Follow these steps to set up SportsRecorder on a fresh computer:
+
+### 1. Install Python
+
+1. Download the latest Python from [python.org](https://www.python.org/downloads/)
+2. Run the installer
+3. **IMPORTANT**: Check "Add Python to PATH" during installation
+4. Complete the installation
+
+### 2. Install Required Libraries
+
+Open Command Prompt (search for "cmd" in Start menu) and run:
+
+```
+pip install selenium pyautogui pygetwindow webdriver-manager datetime
+```
+
+### 3. Set Up Chrome WebDriver
+
+The program will automatically download and manage the Chrome WebDriver through the webdriver-manager package.
+
+### 4. Create the HTML Test File
+
+Create a file named `test.html` in the same directory as the script with the following content:
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sports Stream</title>
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+      }
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <iframe src="EMBED_URL_WILL_BE_REPLACED" allowfullscreen></iframe>
+  </body>
+</html>
+```
+
+### 5. Enable Windows Game Bar
+
+1. Press `Win + G` to open Game Bar
+2. If prompted, enable Game Bar for your system
+3. In Windows Settings > Gaming > Captures, make sure screen recording is enabled
+
+## Usage
+
+### Basic Usage
+
+1. Download the script to a folder on your computer
+2. Open Command Prompt and navigate to the folder containing the script:
+   ```
+   cd path\to\folder
+   ```
+3. Run the script:
+   ```
+   python sportsrecorder.py
+   ```
+
+### Configuration
+
+Edit the `main()` function in the script to set:
+
+- `search_url`: The search page URL for the sports game (e.g., "https://phd1.live//?s=terrapins")
+- `start_time`: When to start recording in format "YYYY-MM-DD HH:MM"
+- `duration_minutes`: How long to record in minutes
+
+Example configuration:
+
+```python
+def main():
+    recorder = SportsRecorder()
+    search_url = "https://phd1.live//?s=terrapins"  # Replace with your search term
+    start_time = "2025-03-06 19:30"  # Set your desired start time
+    duration_minutes = 120  # Set recording duration in minutes
+
+    recorder.schedule_recording(search_url, start_time, duration_minutes)
+```
+
+## How It Works
+
+1. The program opens Chrome and searches for the game using the provided URL
+2. It finds the game page and extracts the embed source
+3. It updates the local test.html file with the embed source
+4. At the scheduled time, it opens the test.html file in fullscreen
+5. It handles any popups and unmutes the stream
+6. It starts recording using Windows Game Bar (Win+Alt+R)
+7. It records for the specified duration and then stops
+
+## Recordings Location
+
+By default, Windows Game Bar saves recordings to:
+
+```
+C:\Users\[YourUsername]\Videos\Captures
+```
+
+## Troubleshooting
+
+- **Stream not playing**: The program attempts to unmute and start the stream automatically. If it fails, try modifying the `tab_count` value in the `check_and_refresh_stream` method.
+- **Recording not starting**: Make sure Windows Game Bar is properly enabled and configured.
+- **Browser closing unexpectedly**: Check your firewall/antivirus settings to ensure they're not blocking the automation.
+
+## Quick Start Command
+
+To do everything in one go on a fresh computer, copy and paste this into Command Prompt:
+
+```
+curl -o install_sportsrecorder.bat https://raw.githubusercontent.com/yourusername/sportsrecorder/main/install.bat && install_sportsrecorder.bat
+```
+
+Or manually:
+
+```
+pip install selenium pyautogui pygetwindow webdriver-manager datetime && python sportsrecorder.py
+```
+
+## Legal Notice
+
+This tool is designed for personal use to record content you have legal access to. Please ensure you comply with all relevant laws and terms of service for the websites you access.

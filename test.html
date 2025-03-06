@@ -1,0 +1,66 @@
+<script>
+  window.onload = function () {
+    // Wait for the iframe to load
+    let iframe = document.querySelector("iframe");
+
+    // Since we can't directly access iframe content due to cross-origin restrictions,
+    // we'll focus on the iframe and then use keyboard navigation
+    iframe.addEventListener("load", function () {
+      // Focus on the iframe
+      iframe.focus();
+      console.log("Iframe loaded and focused");
+
+      // The parent page will handle tab navigation through the Python script
+    });
+  };
+</script>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>LSU Game Stream</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #000;
+      }
+
+      .stream-container {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .stream-wrapper {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stream-container">
+      <div class="stream-wrapper">
+        <iframe
+          src="https://embedsports.me/mens-college-basketball/13-maryland-vs-17-michigan-stream-2"
+          frameborder="0"
+          marginwidth="0"
+          marginheight="0"
+          scrolling="no"
+          allowfullscreen
+          allow="autoplay; fullscreen"
+        >
+        </iframe>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,60 @@
+
+Proposal for Automated Sports Recording Tool
+
+Introduction
+
+Watching live sports is often challenging due to time zone differences, late-night schedules, or work commitments. Missing a game means losing the excitement of real-time viewing, and many events do not offer convenient replays. To solve this issue, I propose the development of an automated recording tool that ensures users never miss a game, regardless of its broadcast time.
+
+Objective
+
+The goal is to create a tool that automatically records live sports broadcasts by opening the streaming link, recording the game, and ensuring uninterrupted capture even if the player stops or refreshes. This will eliminate the need to stay up late for matches, watch at inconvenient hours, or miss games entirely.
+
+Key Features
+
+Automated Link Activation
+
+The tool will open the designated streaming link at the scheduled match time.
+
+Recording Functionality
+
+It will begin recording automatically once the stream starts.
+
+The recorded video will be saved in a designated folder for easy access.
+
+Auto-Refresh & Recovery
+
+If the stream stops or the player crashes, the tool will refresh the page and continue recording.
+
+It will detect interruptions and automatically resume recording.
+
+Popup Handling for Streaming Links
+
+Many streaming sites contain popups when clicking the play button. The tool will be designed to strategically interact with the play button while minimizing popup interference.
+
+It will implement smart detection to close popups or avoid unnecessary clicks that could disrupt playback.
+
+Scheduled Recording
+
+Users can pre-set match times, ensuring the tool starts recording without manual intervention.
+
+Storage & Management
+
+The recordings will be saved in an organized manner with timestamps and match details.
+
+Users can set storage limits or enable auto-delete for older recordings.
+
+Benefits
+
+No More Missed Games: Watch matches at your convenience without compromising sleep or work.
+
+Stress-Free Viewing: No need to stay up late or adjust your schedule for live broadcasts.
+
+Reliable & Uninterrupted Recording: Ensures you capture every moment, even if the stream has issues.
+
+Popup Management: Avoid frustrating interruptions caused by ads and popups when starting a stream.
+
+Conclusion
+
+This tool will revolutionize sports viewing by providing a seamless recording experience, allowing users to enjoy their favorite games without compromising their daily routine. Developing this system will eliminate the need to stay up late for matches, watch games during work hours, or rely on unreliable replay options.
+
+With this tool, there is no longer a reason to watch 감스트 late at night, wake up at 4 AM for football games, or struggle to watch matches at work. This innovation will enhance sports accessibility and convenience for fans worldwide.
