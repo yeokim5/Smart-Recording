@@ -1,112 +1,129 @@
 import keyboard
 import time
 import sys
+import threading
+import atexit
 
-def press_arrow(key, with_ctrl=False):
-    """
-    Send the arrow key press with proper key codes
-    If with_ctrl is True, simulates Ctrl+Arrow for word skipping
-    """
-    if with_ctrl:
-        print(f"Simulating Ctrl+{key} arrow key (word skipping)")
-        # Simulate Ctrl+Arrow for word skipping
-        keyboard.send(f"ctrl+{key}")
-    else:
-        print(f"Simulating {key} arrow key")
-        # Use direct key codes for standard arrow movement
-        keyboard.send(key)
+# Global flag to control script execution
+running = True
+script_enabled = True
+
+# Track the hotkey state
+is_hotkey_active = False
+suppressed_keys = set()
+
+# Define the toggle key
+TOGGLE_KEY = 'scroll lock'  # ScrollLock key to toggle the script on/off
+
+# Define the activation key (Right Alt is often labeled as AltGr on many keyboards)
+ACTIVATION_KEY = 'right alt'
+
+def simulate_key(target_key, with_modifier=None):
+    """Simulate pressing and releasing a key with an optional modifier."""
+    try:
+        if with_modifier:
+            keyboard.press(with_modifier)
+        keyboard.press(target_key)
+        time.sleep(0.02)
+        keyboard.release(target_key)
+        if with_modifier:
+            keyboard.release(with_modifier)
+        return True
+    except Exception as e:
+        print(f"Error simulating key {target_key}: {e}")
+        return False
+
+def handle_hotkey(e):
+    """Process key events when hotkey is active."""
+    global is_hotkey_active, suppressed_keys
     
-def handle_alt_hotkey(key):
-    """Handle Alt+IJKL hotkey presses"""
-    # Release the alt key first to avoid interference
-    keyboard.release('alt')
-    time.sleep(0.01)  # Small delay
-    press_arrow(key, with_ctrl=False)
-    return False  # This prevents the original key from being typed
+    # Only process if the script is enabled
+    if not script_enabled:
+        return True
+    
+    key = e.name.lower()
+    
+    # Handle key activation and deactivation
+    if key == ACTIVATION_KEY:
+        if e.event_type == keyboard.KEY_DOWN:
+            is_hotkey_active = True
+        elif e.event_type == keyboard.KEY_UP:
+            is_hotkey_active = False
+            suppressed_keys.clear()
+        return True  # Allow 한/영 key to function normally
+    
+    # Process navigation when activation key is held down
+    if is_hotkey_active:
+        action_map = {
+            'i': 'up', 'k': 'down', 'j': 'left', 'l': 'right',
+            'u': 'home', 'o': 'end', 'h': 'page up', 'n': 'page down',
+            'y': ('left', 'ctrl'), 'p': ('right', 'ctrl')
+        }
+        
+        if e.event_type == keyboard.KEY_DOWN and key in action_map:
+            action = action_map[key]
+            if isinstance(action, tuple):
+                simulate_key(action[0], action[1])
+            else:
+                simulate_key(action)
+            suppressed_keys.add(key)
+            return False  # Suppress keypress so it doesn't type
+        
+        elif e.event_type == keyboard.KEY_UP and key in suppressed_keys:
+            suppressed_keys.remove(key)
+            return False
+    
+    return True
 
-def handle_ctrl_alt_hotkey(key):
-    """Handle Ctrl+Alt+IJKL hotkey presses for word skipping"""
-    # Release modifier keys to avoid interference
-    keyboard.release('alt')
-    keyboard.release('ctrl')
-    time.sleep(0.01)  # Small delay
-    press_arrow(key, with_ctrl=True)
-    return False  # This prevents the original key from being typed
+def toggle_script():
+    """Toggle the script on/off"""
+    global script_enabled
+    script_enabled = not script_enabled
+    print(f"Script is now {'ENABLED' if script_enabled else 'DISABLED'}")
 
-def handle_home_end_keys(key):
-    """Handle Alt+U/O for Home/End functionality instead of Alt+Shift+J/K"""
-    # Release modifier keys
-    keyboard.release('alt')
-    time.sleep(0.01)  # Small delay
-    print(f"Simulating {key} key")
-    keyboard.send(key)
-    return False  # This prevents the original key from being typed
+def emergency_shutdown():
+    """Ensure all hooks are removed when exiting"""
+    keyboard.unhook_all()
+    print("All keyboard hooks removed")
 
 def main():
     """
-    Simulate arrow keys with multiple modes:
-    
-    1. Alt+I/J/K/L: Regular arrow keys
-    - Alt+I: Up arrow
-    - Alt+J: Left arrow
-    - Alt+K: Down arrow
-    - Alt+L: Right arrow
-    
-    2. Ctrl+Alt+I/J/K/L: Ctrl+Arrow keys (word skipping)
-    - Ctrl+Alt+I: Ctrl+Up arrow
-    - Ctrl+Alt+J: Ctrl+Left arrow (skip word left)
-    - Ctrl+Alt+K: Ctrl+Down arrow
-    - Ctrl+Alt+L: Ctrl+Right arrow (skip word right)
-    
-    3. Alt+U/O: Home/End keys
-    - Alt+U: Home key (move to beginning of line)
-    - Alt+O: End key (move to end of line)
+    Main function to run the script
     """
-    print("Starting Enhanced Arrow Key Simulator")
-    print("Hotkeys:")
-    print("- Alt+I/J/K/L: Regular arrow keys")
-    print("- Ctrl+Alt+I/J/K/L: Word skipping (like Ctrl+Arrow)")
-    print("- Alt+U: Home key (beginning of line)")
-    print("- Alt+O: End key (end of line)")
+    print("=== Natural Key Navigator ===")
+    print(f"Hold {ACTIVATION_KEY.upper()} and press these keys for navigation:")
+    print("- I: Up arrow")
+    print("- K: Down arrow")
+    print("- J: Left arrow")
+    print("- L: Right arrow")
+    print("- U: Home")
+    print("- O: End")
+    print("- H: Page Up")
+    print("- N: Page Down")
+    print("- Y: Word left (Ctrl+Left)")
+    print("- P: Word right (Ctrl+Right)")
+    print("")
+    print(f"Press {TOGGLE_KEY.upper()} to toggle the script on/off")
     print("Press Ctrl+C to exit")
     
+    # Register cleanup function
+    atexit.register(emergency_shutdown)
+    
     try:
-        # Define and register Alt+IJKL hotkeys (regular arrow keys)
-        keyboard.add_hotkey('alt+i', lambda: handle_alt_hotkey("up"), suppress=True)
-        keyboard.add_hotkey('alt+j', lambda: handle_alt_hotkey("left"), suppress=True)
-        keyboard.add_hotkey('alt+k', lambda: handle_alt_hotkey("down"), suppress=True)
-        keyboard.add_hotkey('alt+l', lambda: handle_alt_hotkey("right"), suppress=True)
+        # Register the toggle hotkey
+        keyboard.add_hotkey(TOGGLE_KEY, toggle_script)
         
-        # Define and register Ctrl+Alt+IJKL hotkeys (word skipping)
-        # Using more specific hotkey patterns with exact_match=True to avoid interfering with other Ctrl combinations
-        keyboard.add_hotkey('ctrl+alt+i', lambda: handle_ctrl_alt_hotkey("up"), suppress=True, exact_match=True)
-        keyboard.add_hotkey('ctrl+alt+j', lambda: handle_ctrl_alt_hotkey("left"), suppress=True, exact_match=True)
-        keyboard.add_hotkey('ctrl+alt+k', lambda: handle_ctrl_alt_hotkey("down"), suppress=True, exact_match=True)
-        keyboard.add_hotkey('ctrl+alt+l', lambda: handle_ctrl_alt_hotkey("right"), suppress=True, exact_match=True)
-        
-        # Define and register Alt+U/O for Home/End functionality
-        keyboard.add_hotkey('alt+u', lambda: handle_home_end_keys("home"), suppress=True)
-        keyboard.add_hotkey('alt+o', lambda: handle_home_end_keys("end"), suppress=True)
-        
-        print("All hotkeys registered successfully.")
-        print("Regular movement: Alt+I/J/K/L")
-        print("Word skipping: Ctrl+Alt+I/J/K/L")
-        print("Line navigation: Alt+U (Home), Alt+O (End)")
-        print("Browser functionality like Ctrl+Click remains unaffected")
+        # Hook the keyboard for navigation, suppressing only handled keys
+        keyboard.hook(handle_hotkey, suppress=True)
         
         # Keep the program running
         while True:
             time.sleep(0.1)
-    except Exception as e:
-        print(f"Error: {e}")
-        print("Troubleshooting tips:")
-        print("1. Make sure you run this script with admin/root privileges")
-        print("2. Check if keyboard module is correctly installed")
-        print("3. On macOS, verify accessibility permissions are granted")
+            
     except KeyboardInterrupt:
-        print("Exiting Arrow Key Simulator")
+        print("Exiting...")
     finally:
-        keyboard.unhook_all()
+        emergency_shutdown()
 
 if __name__ == "__main__":
     main()
