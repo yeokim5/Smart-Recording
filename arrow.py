@@ -15,8 +15,8 @@ suppressed_keys = set()
 # Define the toggle key
 TOGGLE_KEY = 'scroll lock'  # ScrollLock key to toggle the script on/off
 
-# Define the activation key (Right Alt is often labeled as AltGr on many keyboards)
-ACTIVATION_KEY = 'right alt'
+# Define the activation key
+ACTIVATION_KEY = 'caps lock'  # Changed from 'right alt' to 'caps lock'
 
 def simulate_key(target_key, with_modifier=None):
     """Simulate pressing and releasing a key with an optional modifier."""
@@ -50,7 +50,7 @@ def handle_hotkey(e):
         elif e.event_type == keyboard.KEY_UP:
             is_hotkey_active = False
             suppressed_keys.clear()
-        return True  # Allow 한/영 key to function normally
+        return False  # Suppress the caps lock key event to prevent state change
     
     # Process navigation when activation key is held down
     if is_hotkey_active:
